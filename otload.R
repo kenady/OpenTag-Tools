@@ -6,6 +6,7 @@
 # - estimate size of data to be read
 # - preallocate vectors
 
+# rtyson#mote.org
 
 otload <- function(path,start,end) {
 
@@ -16,8 +17,8 @@ startfile <- start  # specify name of file to start with
 endfile <- end    # specify name of file to end with
 
 # initialize empty vectors based on size of first file
-numfiles = endfile - startfile + 1
-filename = paste(path, startfile, ".DSG", sep="") 
+numfiles <- endfile - startfile + 1
+filename <- paste(path, startfile, ".DSG", sep="") 
 samples = file.size(filename) / 2 # this is overestimate
 INER <- rep(NA,samples * numfiles)  # Inertial vector
 PTMP <- rep(NA,samples * numfiles)   # Pressure/Temperature vector
