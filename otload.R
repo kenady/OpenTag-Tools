@@ -6,7 +6,7 @@
 # - estimate size of data to be read
 # - preallocate vectors
 
-# rtyson#mote.org
+# rtyson#mote.org, modifed from D. Mann Loggerhead Instruments
 
 otload <- function(path,start,end) {
 
