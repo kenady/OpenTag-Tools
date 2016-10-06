@@ -203,7 +203,9 @@ for(i in 1:length(dive.list)){
   }
 
 
-return(dout)
+  # We want to return the new ptmp datafrme with the zero corrected depth variable and dive numbers 
+  # as well as the dive statistics (dout)
+  return(list(dout,ptmp))
 
 
 }
