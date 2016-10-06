@@ -1,28 +1,28 @@
 ##-----------------------Calculate Dive Statistics for OpenTag Data---------------------##
 
 divestats <- function(ptmp,ulim,blim,sn,dr,ch,fs){
-  # ptmp is a data frame of your time depth data from OpenTag. Create this using otload.R
-  # ulim is the upper limit of possible surface values (positive value). This is used in the zero-correction depth process.
-  # blim in the lower limit of possible surface values (negative value). This is used in the zero-correction depth process.
-  # sn is the surface interval within which surface noise should be zero (i.e., values less than 1 should be 0)
-  # dr is the proportion of max depth below which bottom phase begins
-  # ch is the proportional difference in rate of change in depth to set beginning and end of bottom phase
-  # mind is the first depth values we would see would be 2 because we set everything shallower to zero?? (NOT USED RIGHT NOW)
-  # fs is the sampling frequency of your data
+# ptmp is a data frame of your time depth data from OpenTag. Create this using otload.R
+# ulim is the upper limit of possible surface values (positive value). This is used in the zero-correction depth process.
+# blim in the lower limit of possible surface values (negative value). This is used in the zero-correction depth process.
+# sn is the surface interval within which surface noise should be zero (i.e., values less than 1 should be 0)
+# dr is the proportion of max depth below which bottom phase begins
+# ch is the proportional difference in rate of change in depth to set beginning and end of bottom phase
+# mind is the first depth values we would see would be 2 because we set everything shallower to zero?? (NOT USED RIGHT NOW)
+# fs is the sampling frequency of your data
 
 # This function will calculate the following dive statistics for OpenTag pressure sensor data:
-  # Dive number (divenum)
-  # Dive start time (start)
-  # Dive end time (end)
-  # Maximum dive depth (maxdepth)
-  # Dive duration (Tdown)
-  # Post-dive surface duration (Tup)
-  # Duration of time spent at bottom (user defined variable) (bottom.duration)
-  # Number of wiggles at bottom (wig.n)
-  # Descent duration (descent)
-  # Ascent duration (ascent)
-  # Descent rate (descent.rate)
-  # Ascent rate (ascent.rate)
+  # Dive number: divenum
+  # Dive start time: start
+  # Dive end time: end
+  # Maximum dive depth (m): maxdepth
+  # Dive duration (sec): Tdown
+  # Post-dive surface duration (sec): Tup
+  # Duration of time spent at bottom (sec): bottom.duration
+  # Number of wiggles at bottom: wig.n
+  # Descent duration (sec): descent
+  # Ascent duration (sec): ascent
+  # Descent rate (m/sec): descent.rate
+  # Ascent rate (m/sec): ascent.rate
 
 # Example: dives <- divestats(ptmp,2,-2,0.2,0.1,0.7,1)
 # Optional plotting option an the end of the code. If left in, each dive will be plotted, with 
@@ -34,7 +34,7 @@ divestats <- function(ptmp,ulim,blim,sn,dr,ch,fs){
 # data collected from Wildlife Computer satellite tags 
 
 # Reny Tyson, rtyson@mote.org                                                            
-# 5 October 2016                                                                         
+# 6 October 2016                                                                         
 
 ############################################################################################
 #Step 1: Zero correct depth and identify individual dives
