@@ -1,13 +1,11 @@
 ##-----------------------Calculate Dive Statistics for OpenTag Data---------------------##
 
-divestats <- function(ptmp,ulim,blim,sn,dr,ch,fs){
+divestats <- function(ptmp,ulim,blim,sn,dr,fs){
 # ptmp is a data frame of your time depth data from OpenTag. Create this using otload.R
 # ulim is the upper limit of possible surface values (positive value). This is used in the zero-correction depth process.
 # blim in the lower limit of possible surface values (negative value). This is used in the zero-correction depth process.
 # sn is the surface interval within which surface noise should be zero (i.e., values less than 1 should be 0)
 # dr is the proportion of max depth below which bottom phase begins
-# ch is the proportional difference in rate of change in depth to set beginning and end of bottom phase
-# mind is the first depth values we would see would be 2 because we set everything shallower to zero?? (NOT USED RIGHT NOW)
 # fs is the sampling frequency of your data
 
 # This function will calculate the following dive statistics for OpenTag pressure sensor data:
@@ -24,7 +22,7 @@ divestats <- function(ptmp,ulim,blim,sn,dr,ch,fs){
   # Descent rate (m/sec): descent.rate
   # Ascent rate (m/sec): ascent.rate
 
-# Example: dives <- divestats(ptmp,2,-2,0.2,0.8,0.7,1)
+# Example: dives <- divestats(ptmp,2,-2,0.2,0.8,1)
 # Optional plotting option an the end of the code. If left in, each dive will be plotted, with 
 # red points representing the descent and ascent portion of a dive, blue points representing the 
 # bottom phase of a dive, and green vertical lines indicating the start and end points of the bottom 
@@ -123,35 +121,7 @@ for(i in 1:length(dive.list)){
   st <- which(x$depth >= br)  #which points are greater than or equal to your bottom range?
   d1 <-x[st[1]:st[length(st)],]  #d1 is just the points of your bottom range. 
   
-  # Calculate the rate of change between consecutive points between the points of your bottom range (d1)
-  # Firstly for the descent....
-  y <- c(0, diff(d1$depth)) 
-  y1 <- c(0,y[1:(length(y)-1)])
-  
-  # Check the number of points above the surface - important for shallow dives #inf is inflection
-  if (d1$depth[1] == x$depth[2]) { # Is the depth of the first point in the bottom range equal to the first point of dive data?
-    inf11 <- d1$datetime[1] # If it is then this is a shallow dive and take the time  from that first point in the bottom range
-  } else {  # If its a deeper dive than find the points where the rate of change in depth is gereater than ch
-    inf1 <- which((y/y1) <= ch)
-    inf11 <- d1$datetime[inf1[1]] # Pull the first point where the rate of change in depth is less than or equal to ch
-  }
-  
-  # Then for the ascent....first step here is to re-order the depths
-  d2 <- d1[order(d1$datetime, decreasing=T), ]  # d2 is points of the bottom range in reverse
-  x2 <- x[order(x$datetime, decreasing=T),]     # x2 is dive data in reverse
-  
-  # Check the number of points above the surface - important for shallow dives
-  if (d2$depth[1] == x2$depth[2]) { # Find inflection points
-    inf22 <- d2$datetime[1]
-  }else {
-    
-    y <- c(0, diff(d2$depth))
-    y2 <- c(0,y[1:(length(y)-1)])
-    inf2 <- which((y/y2) <= ch)
-    inf22 <- d2$datetime[inf2[1]]
-  }
-  
-  
+   
   #####Overall Statistics #############
   dout$divenum[i] <- min(x$num)
   dout$start[i] <- x$datetime[1]
@@ -159,15 +129,11 @@ for(i in 1:length(dive.list)){
   dout$maxdepth[i] <- max(x$depth)
   dout$Tdown[i]  <- x$sec[nrow(x)]
   dout$Tup[i]  <- x.$sec[nrow(x.)] - x$sec[nrow(x)]
-  dout$descent[i] <- as.numeric(inf11) - as.numeric(x$datetime[1])  
-  dout$ascent[i]  <- as.numeric(x$datetime[nrow(x)]) - as.numeric(inf22)
-  
-  # add mean descent and ascent rates
-  dout$descent.rate[i] <-  mean( x[1:which(x$datetime == inf11),]$depth / nrow(x[1:which(x$datetime == inf11),]))
-  dout$ascent.rate[i] <-  mean( x[which(x$datetime == inf22):nrow(x),]$depth / nrow(x[1:which(x$datetime == inf22),]))
-  
-  #####Bottom Phase Statistics##########
-  dout$bottom.duration[i] <- as.numeric(inf22)-as.numeric(inf11)
+  dout$bottom.duration.br[i] <- as.numeric(d1$datetime[nrow(d1)]) - as.numeric(d1$datetime[1])
+  dout$descent.br[i] <- as.numeric(d1$datetime[1]) - as.numeric(x$datetime[1])
+  dout$ascent.br[i]  <-  as.numeric(x$datetime[nrow(x)]) - as.numeric(d1$datetime[nrow(d1)]) 
+  dout$descent.rate.br[i] <- mean( x[1:which(x$datetime == d1$datetime[1]),]$depth.diff / fs )
+  dout$ascent.rate.br[i]  <- mean( x[which(x$datetime == d1$datetime[nrow(d1)]):nrow(x),]$depth.diff / fs )
   
   ##################wiggles ############
   ##set up empty variables
@@ -193,12 +159,10 @@ for(i in 1:length(dive.list)){
   
   ##-------------------Optional Plot of each dive------------------------##
   # Comment this section out to speed up code. 
-  tit1 <- paste(d1$num[1], ", ch= ", ch, "points:", length(d1$depth))
+  tit1 <- paste(d1$num[1], "points:", length(d1$depth))
   plot(x$datetime, x$depth, ylim=c(max(d1$depth),0), t="l", ylab=" ", lwd=2, axes=T, main=tit1)
   points(d1$datetime, d1$depth, t="b", lwd=4, col="red")
   points(wig$datetime, wig$depth, pch=19, cex=1.5, col="blue")
-  abline(v=inf11[1], col="green", lwd=4) 
-  abline(v=inf22[1], col="green", lwd=4)
   
   }
 
