@@ -129,11 +129,11 @@ for(i in 1:length(dive.list)){
   dout$maxdepth[i] <- max(x$depth)
   dout$Tdown[i]  <- x$sec[nrow(x)]
   dout$Tup[i]  <- x.$sec[nrow(x.)] - x$sec[nrow(x)]
-  dout$bottom.duration.br[i] <- as.numeric(d1$datetime[nrow(d1)]) - as.numeric(d1$datetime[1])
-  dout$descent.br[i] <- as.numeric(d1$datetime[1]) - as.numeric(x$datetime[1])
-  dout$ascent.br[i]  <-  as.numeric(x$datetime[nrow(x)]) - as.numeric(d1$datetime[nrow(d1)]) 
-  dout$descent.rate.br[i] <- mean( x[1:which(x$datetime == d1$datetime[1]),]$depth.diff / fs )
-  dout$ascent.rate.br[i]  <- mean( x[which(x$datetime == d1$datetime[nrow(d1)]):nrow(x),]$depth.diff / fs )
+  dout$bottom.duration[i] <- as.numeric(d1$datetime[nrow(d1)]) - as.numeric(d1$datetime[1])
+  dout$descent[i] <- as.numeric(d1$datetime[1]) - as.numeric(x$datetime[1])
+  dout$ascent[i]  <-  as.numeric(x$datetime[nrow(x)]) - as.numeric(d1$datetime[nrow(d1)]) 
+  dout$descent.rate[i] <- mean( x[1:which(x$datetime == d1$datetime[1]),]$depth.diff / fs )
+  dout$ascent.rate[i]  <- mean( x[which(x$datetime == d1$datetime[nrow(d1)]):nrow(x),]$depth.diff / fs )
   
   ##################wiggles ############
   ##set up empty variables
