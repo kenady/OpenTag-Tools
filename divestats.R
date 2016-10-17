@@ -24,7 +24,7 @@ divestats <- function(ptmp,ulim,blim,sn,dr,ch,fs){
   # Descent rate (m/sec): descent.rate
   # Ascent rate (m/sec): ascent.rate
 
-# Example: dives <- divestats(ptmp,2,-2,0.2,0.1,0.7,1)
+# Example: dives <- divestats(ptmp,2,-2,0.2,0.8,0.7,1)
 # Optional plotting option an the end of the code. If left in, each dive will be plotted, with 
 # red points representing the descent and ascent portion of a dive, blue points representing the 
 # bottom phase of a dive, and green vertical lines indicating the start and end points of the bottom 
