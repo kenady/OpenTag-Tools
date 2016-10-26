@@ -123,7 +123,7 @@ for(i in 1:length(dive.list)){
         g <- x$depth[j] > x$depth[j-1]
        inf1 <- c(inf1,g)
   }
-  inf1 <- diff(inf1)
+  inf1 <- c(0,diff(inf1))
   dp <- which(inf1 == -1)[1] # This is the row of the first minimum
     
   # Find the last local minimum
@@ -133,20 +133,21 @@ for(i in 1:length(dive.list)){
       g <- x2$depth[k] > x2$depth[k-1]
       inf2 <- c(inf2,g)
   }
-  inf2 <- diff(inf2)
+  inf2 <- c(0,diff(inf2))
   ap <- which(inf2== -1)[1]   # This is the row of the last minimum
-  ap <- nrow(x) - ap
-    
+  ap <- which(x$datetime == x2$datetime[ap])
+  if(ap == 1) {ap <- which(inf2== -1)[1]}
+  
   bottom <- x[c(dp:ap),] # This is your bottom range
   
   # Have to deal with really shallow dives with no bottom time
   if(bottom$datetime[1] == x$datetime[1]){
      bottom <- data.frame(0)
       
-     inf1 <- c(0,inf1)
+     inf1 <- c(0,0,inf1)
      dp <- which(inf1 == -1)[1] 
       
-     inf2 <- c(0,inf2)
+     inf2 <- c(0,0,inf2)
      ap <- which(inf2 == -1)[1] 
       
   } 
