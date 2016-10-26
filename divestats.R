@@ -207,7 +207,7 @@ for(i in 1:length(dive.list)){
      #tiff(paste("Dive", bottom$num[1],".tiff"),res=100)  # Comment if you only want to print, not save plots
      tit1 <- paste("Dive", bottom$num[1])
       
-     plot(x$datetime, x$depth, ylim=c(max(bottom$depth),0), t="l", ylab=" ", lwd=2, axes=T, main=tit1)
+     plot(x$datetime, x$depth, ylim=c(max(bottom$depth),0), t="l", ylab="Depth", lwd=2, axes=T, main=tit1,xlab='Time')
      points(bottom$datetime, bottom$depth, t="b", lwd=4, col="red")
      #points(wig$datetime, wig$depth, pch=19, cex=1.5, col="blue")
      abline(v=bottom$datetime[1],col='green',lwd=3)
@@ -221,7 +221,7 @@ for(i in 1:length(dive.list)){
      #tiff(paste("Dive", x$num[1],".tiff"),res=100)  # Comment if you only want to print, not save plots
      tit1 <- paste("Dive", x$num[1]) 
       
-     plot(x$datetime, x$depth, ylim=c(max(x$depth),0), t="l", ylab=" ", lwd=2, axes=T, main=tit1)
+     plot(x$datetime, x$depth, ylim=c(max(x$depth),0), t="l", ylab="Depth", lwd=2, axes=T, main=tit1,xlab='Time')
      #points(wig$datetime, wig$depth, pch=19, cex=1.5, col="blue")
      abline(v=x$datetime[dp],col='green',lwd=3)
      abline(v=x$datetime[ap],col='green',lwd=3)
