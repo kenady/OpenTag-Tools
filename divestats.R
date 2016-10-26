@@ -138,7 +138,19 @@ for(i in 1:length(dive.list)){
   ap <- nrow(x) - ap
     
   bottom <- x[c(dp:ap),] # This is your bottom range
-   
+  
+  # Have to deal with really shallow dives with no bottom time
+  if(bottom$datetime[1] == x$datetime[1]){
+     bottom <- data.frame(0)
+      
+     inf1 <- c(0,inf1)
+     dp <- which(inf1 == -1)[1] 
+      
+     inf2 <- c(0,inf2)
+     ap <- which(inf2 == -1)[1] 
+      
+  } 
+  
   #####Overall Statistics #############
   dout$divenum[i] <- min(x$num)
   dout$start[i] <- x$datetime[1]
@@ -146,11 +158,21 @@ for(i in 1:length(dive.list)){
   dout$maxdepth[i] <- max(x$depth)
   dout$Tdown[i]  <- x$sec[nrow(x)]
   dout$Tup[i]  <- x.$sec[nrow(x.)] - x$sec[nrow(x)]
-  dout$bottom.duration[i] <- as.numeric(bottom$datetime[nrow(bottom)]) - as.numeric(bottom$datetime[1])
-  dout$descent[i] <- as.numeric(bottom$datetime[1]) - as.numeric(x$datetime[1])
-  dout$ascent[i]  <- as.numeric(x$datetime[nrow(x)]) - as.numeric(bottom$datetime[nrow(bottom)]) 
-  dout$descent.rate[i] <- mean( x[1:which(x$datetime == bottom$datetime[1]),]$depth.diff / fs )
-  dout$ascent.rate[i]  <- mean( x[which(x$datetime == bottom$datetime[nrow(bottom)]):nrow(x),]$depth.diff / fs )
+  
+    if (nrow(bottom) > 1){
+      dout$bottom.duration[i] <- as.numeric(bottom$datetime[nrow(bottom)]) - as.numeric(bottom$datetime[1])
+      dout$descent[i] <- as.numeric(bottom$datetime[1]) - as.numeric(x$datetime[1])
+      dout$ascent[i]  <- as.numeric(x$datetime[nrow(x)]) - as.numeric(bottom$datetime[nrow(bottom)]) 
+      dout$descent.rate[i] <- mean( x[1:which(x$datetime == bottom$datetime[1]),]$depth.diff / fs )
+      dout$ascent.rate[i]  <- mean( x[which(x$datetime == bottom$datetime[nrow(bottom)]):nrow(x),]$depth.diff / fs )
+    }
+    
+    if (nrow(bottom) == 1){
+      dout$descent[i] <- as.numeric(x$datetime[dp]) - as.numeric(x$datetime[1])
+      dout$ascent[i]  <- as.numeric(x$datetime[nrow(x)]) - as.numeric(x$datetime[ap]) 
+      dout$descent.rate[i] <- mean( x[1:which(x$datetime == x$datetime[dp]),]$depth.diff / fs )
+      dout$ascent.rate[i]  <- mean( x[which(x$datetime == x$datetime[ap]):nrow(x),]$depth.diff / fs )  
+    }
   
   ##################wiggles ############
   ##set up empty variables
@@ -178,15 +200,32 @@ for(i in 1:length(dive.list)){
   # Comment this section out to speed up code. 
   # Option to save plots
     
-  #plot.new()      # Comment if you only want to print, not save plots
-  #par(mfrow=c(1,1),mar=c(4,4,2,2)) # Comment if you only want to print, not save plots
-  #tiff(paste("Dive", bottom$num[1],".tiff"),res=100)   # Comment if you only want to print, not save plots
-  tit1 <- paste("Dive", bottom$num[1])
-  plot(x$datetime, x$depth, ylim=c(max(bottom$depth),0), t="l", ylab=" ", lwd=2, axes=T, main=tit1)
-  points(bottom$datetime, bottom$depth, t="b", lwd=4, col="red")
-  points(wig$datetime, wig$depth, pch=19, cex=1.5, col="blue")
-  abline(v=bottom$datetime[1:2],col='green',lwd=3)
-  #dev.off()   # Comment if you only want to print, not save plots
+  if(nrow(bottom) > 1){
+     #plot.new()  # Comment if you only want to print, not save plots
+     #par(mfrow=c(1,1),mar=c(4,4,2,2))  # Comment if you only want to print, not save plots
+     #tiff(paste("Dive", bottom$num[1],".tiff"),res=100)  # Comment if you only want to print, not save plots
+     tit1 <- paste("Dive", bottom$num[1])
+      
+     plot(x$datetime, x$depth, ylim=c(max(bottom$depth),0), t="l", ylab=" ", lwd=2, axes=T, main=tit1)
+     points(bottom$datetime, bottom$depth, t="b", lwd=4, col="red")
+     #points(wig$datetime, wig$depth, pch=19, cex=1.5, col="blue")
+     abline(v=bottom$datetime[1],col='green',lwd=3)
+     abline(v=bottom$datetime[nrow(bottom)],col='green',lwd=3)
+     #dev.off()  # Comment if you only want to print, not save plots
+    }
+    
+  if(nrow(bottom) == 1){
+     #plot.new()  # Comment if you only want to print, not save plots
+     #par(mfrow=c(1,1),mar=c(4,4,2,2))  # Comment if you only want to print, not save plots
+     #tiff(paste("Dive", x$num[1],".tiff"),res=100)  # Comment if you only want to print, not save plots
+     tit1 <- paste("Dive", x$num[1]) 
+      
+     plot(x$datetime, x$depth, ylim=c(max(x$depth),0), t="l", ylab=" ", lwd=2, axes=T, main=tit1)
+     #points(wig$datetime, wig$depth, pch=19, cex=1.5, col="blue")
+     abline(v=x$datetime[dp],col='green',lwd=3)
+     abline(v=x$datetime[ap],col='green',lwd=3)
+     #dev.off()  # Comment if you only want to print, not save plots
+    }  
   }
 
 
