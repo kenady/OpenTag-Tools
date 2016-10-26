@@ -176,11 +176,17 @@ for(i in 1:length(dive.list)){
   
   ##-------------------Optional Plot of each dive------------------------##
   # Comment this section out to speed up code. 
+  # Option to save plots
+    
+  #plot.new()      # Comment if you only want to print, not save plots
+  #par(mfrow=c(1,1),mar=c(4,4,2,2)) # Comment if you only want to print, not save plots
+  #tiff(paste("Dive", bottom$num[1],".tiff"),res=100)   # Comment if you only want to print, not save plots
   tit1 <- paste("Dive", bottom$num[1])
   plot(x$datetime, x$depth, ylim=c(max(bottom$depth),0), t="l", ylab=" ", lwd=2, axes=T, main=tit1)
   points(bottom$datetime, bottom$depth, t="b", lwd=4, col="red")
   points(wig$datetime, wig$depth, pch=19, cex=1.5, col="blue")
   abline(v=bottom$datetime[1:2],col='green',lwd=3)
+  #dev.off()   # Comment if you only want to print, not save plots
   }
 
 
