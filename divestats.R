@@ -1,6 +1,6 @@
 ##-----------------------Calculate Dive Statistics for OpenTag Data---------------------##
 
-divestats <- function(ptmp,ulim,blim,sn,fs){
+divestats <- function(ptmp,ulim,blim,sn,dr,fs){
 # ptmp is a data frame of your time depth data from OpenTag. Create this using otload.R
 # ulim is the upper limit of possible surface values (positive value). This is used in the zero-correction depth process.
 # blim in the lower limit of possible surface values (negative value). This is used in the zero-correction depth process.
@@ -22,7 +22,7 @@ divestats <- function(ptmp,ulim,blim,sn,fs){
   # Descent rate (m/sec): descent.rate
   # Ascent rate (m/sec): ascent.rate
 
-# Example: dives <- divestats(ptmp,2,-2,0.2,1)
+# Example: dives <- divestats(ptmp,2,-2,0.3,0.7,1)
 # Optional plotting option an the end of the code. If left in, each dive will be plotted, with 
 # red points representing the descent and ascent portion of a dive, blue points representing the 
 # bottom phase of a dive, and green vertical lines indicating the start and end points of the bottom 
@@ -32,7 +32,7 @@ divestats <- function(ptmp,ulim,blim,sn,fs){
 # data collected from Wildlife Computer satellite tags 
 
 # Reny Tyson, rtyson@mote.org                                                            
-# 26 October 2016                                                                         
+# 1 November 2016                                                                       
 
 ############################################################################################
 #Step 1: Zero correct depth and identify individual dives
@@ -116,41 +116,64 @@ for(i in 1:length(dive.list)){
   end <- which(diff(x.$depth > 0)==-1)+1 # sets the end point as the point before 
   x <- x.[start:end,] # cuts off the surface intervals
   
-  # Identify the points within your "bottom range" calculated as the first and last local minimum
-  # Find the first local minimum
+  # add difference in depth (for calculting descent and ascent rates)
+  x$depth.diff <- rep(0,nrow(x)) 
+  x[2:nrow(x),]$depth.diff <- diff(x$depth)
+    
+  # Identify the points within your "bottom range" 
+  br <- max(x$depth)*dr  #bottom range is the dr of the maximum dive depth
+  st <- which(x$depth >= br)  #which points are greater than or equal to your bottom range?
+  d1 <-x[st[1]:st[length(st)],] 
+  d2 <- d1[order(d1$datetime, decreasing=T), ]  # d2 is points of the bottom range in reverse
+  
+  # Find the first local minimum 
   inf1 <- c()
-  for (j in 2:nrow(x)){
-        g <- x$depth[j] > x$depth[j-1]
-       inf1 <- c(inf1,g)
+   for (j in 2:nrow(x)){
+     g <- x$depth[j] > x$depth[j-1]
+     inf1 <- c(inf1,g)
   }
   inf1 <- c(0,diff(inf1))
   dp <- which(inf1 == -1)[1] # This is the row of the first minimum
-    
-  # Find the last local minimum
-  x2 <- x[order(x$datetime, decreasing=T),] # dive data in reverse
-  inf2 <- c()
-  for (k in 2:nrow(x)){
+
+  #if the first minmum is shallower than the bottom range, recalculate and force it to be within this range
+  if (dp < st[1]){
+      inf1 <- c()
+      for (j in 2:nrow(d1)){
+        g <- d1$depth[j] > d1$depth[j-1]
+        inf1 <- c(inf1,g)
+      }
+      inf1 <- c(0,diff(inf1))
+      dp <- which(inf1 == -1)[1] # This is the row of the first minimum
+      dp <- which(x$datetime == d1[dp,]$datetime)
+    }    
+        
+    # Find the last local minimum
+    x2 <- x[order(x$datetime, decreasing=T),] # dive data in reverse
+        inf2 <- c()
+    for (k in 2:nrow(x)){
       g <- x2$depth[k] > x2$depth[k-1]
       inf2 <- c(inf2,g)
-  }
-  inf2 <- c(0,diff(inf2))
-  ap <- which(inf2== -1)[1]   # This is the row of the last minimum
-  ap <- which(x$datetime == x2$datetime[ap])
-  if(ap == 1) {ap <- which(inf2== -1)[1]}
+    }
+    inf2 <- c(0,diff(inf2))
+    ap <- which(inf2== -1)[1]   # This is the row of the last minimum
+    ap <- which(x$datetime == x2$datetime[ap])
+    
+    #if the last minium is shallower than dr - redo it 
+    if (ap > st[length(st)]){
+      
+      inf2 <- c()
+      for (j in 2:nrow(d2)){
+        g <- d2$depth[j] > d2$depth[j-1]
+        inf2 <- c(inf2,g)
+      }
+      inf2 <- c(0,diff(inf2))
+      ap <- which(inf2 == -1)[1] # This is the row of the first minimum
+
+      ap <- which(x$datetime == d2[ap,]$datetime)
+    }
+    
+    bottom <- x[c(dp:ap),]  # This is your bottom range
   
-  bottom <- x[c(dp:ap),] # This is your bottom range
-  
-  # Have to deal with really shallow dives with no bottom time
-  if(bottom$datetime[1] == x$datetime[1]){
-     bottom <- data.frame(0)
-      
-     inf1 <- c(0,0,inf1)
-     dp <- which(inf1 == -1)[1] 
-      
-     inf2 <- c(0,0,inf2)
-     ap <- which(inf2 == -1)[1] 
-      
-  } 
   
   #####Overall Statistics #############
   dout$divenum[i] <- min(x$num)
