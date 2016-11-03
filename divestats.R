@@ -48,7 +48,7 @@ ptmp$depth <- ptmp$depth * -1
 # Includes the depth range from which to develop the depth histogram
 # Optional plotting option
 zoc <- function(x,ulim,blim){
-  h <- hist(x[x < ulim & x > blim], breaks = seq(blim, ulim, 1), plot=FALSE) # To plot say plot=TRUE
+  h <- hist(x[x < ulim & x > blim], breaks = seq(blim, ulim, .1), plot=FALSE) # To plot say plot=TRUE
   #abline(v=h$breaks[which.max(h$counts)], col="red") # To plot turn off comment
   #print(h$breaks[which.max(h$counts)]) # To plot turn off comment
   ##scan("", 1) # To plot turn off comment
